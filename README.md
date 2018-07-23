@@ -3,6 +3,8 @@ Remove individual lines from Windows XML Event Log (EVTX) files
 
 Support: Win7 and later
 
+Need more test and suggestions.
+
 ### DeleteRecordofFile.cpp
 
 Read an evtx file(c:\\test\\System.evtx),then delete an event log(EventRecordID=1914).
