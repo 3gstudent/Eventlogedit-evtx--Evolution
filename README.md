@@ -5,6 +5,16 @@ Support: Win7 and later
 
 Need more test and suggestions.
 
+**Update:**
+
+1. Change the code of DeleteRecordbyGetHandle.cpp.
+
+Note:
+
+- WinXP and Win7,ObjectTypeNumber = 0x1c
+- Win8 and later,ObjectTypeNumber = 0x1e
+
+
 ### DeleteRecordofFile.cpp
 
 Read an evtx file(c:\\test\\System.evtx),then delete an event log(EventRecordID=1914).
