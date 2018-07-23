@@ -19,3 +19,12 @@ Kill the eventlog service's process and delete one eventlog record,then restart 
 
 Get specified .evtx file's handle and delete one eventlog record
 
+### System.evtx
+
+Number of events:4
+
+### System2.evtx
+
+Delete the last one eventlog record
+
+Number of events:3
