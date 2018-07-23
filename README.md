@@ -17,7 +17,7 @@ Kill the eventlog service's process and delete one eventlog record,then restart 
 
 ### DeleteRecordbyGetHandle.cpp
 
-Get specified .evtx file's handle and delete one eventlog record
+Get specified .evtx file's handle and delete one eventlog record.
 
 ### System.evtx
 
