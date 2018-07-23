@@ -1,4 +1,4 @@
-# Eventlogedit-Evolution
+# Eventlogedit-evtx--Evolution
 Remove individual lines from Windows XML Event Log (EVTX) files
 
 Support: Win7 and later
