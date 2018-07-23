@@ -5,6 +5,11 @@ Support: Win7 and later
 
 Need more test and suggestions.
 
+The data structure and code details are inspired by https://bbs.pediy.com/thread-219313.htm
+
+Later I'll write some posts to introduce the details.
+
+
 **Update:**
 
 1. Change the code of DeleteRecordbyGetHandle.cpp
