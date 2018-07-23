@@ -533,7 +533,7 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		printf("kill Eventlog Service Process and delete one Eventlog Record,then restart Eventlog Service\n\n");
+		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n\n");
 		printf("Usage:\n");
 		printf("%s <Eventlog full path> <EventlogRecordID>\n",argv[0]);
 		printf("eg:\n");
