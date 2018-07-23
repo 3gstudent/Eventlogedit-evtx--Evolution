@@ -14,6 +14,7 @@ Note:
 - WinXP and Win7,ObjectTypeNumber = 0x1c
 - Win8 and later,ObjectTypeNumber = 0x1e
 
+---
 
 ### DeleteRecordofFile.cpp
 
