@@ -7,6 +7,7 @@ Read an evtx file(c:\\test\\System.evtx),then delete an event log(EventRecordID=
 
 The new evtx file is saved as c:\\test\\System2.evtx.
 
-Coming soon
+---
+The other code is coming soon.
 
 Open at the right time
