@@ -15,7 +15,7 @@ The new evtx file is saved as `c:\\test\\System2.evtx`.
 
 Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
 
----
-The other code is coming soon.
+### DeleteRecordbyGetHandle.cpp
 
-Open at the right time
+Get specified .evtx file's handle and delete one eventlog record
+
