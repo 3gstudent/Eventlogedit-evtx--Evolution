@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
 		sscanf_s(argv[3], "%d", &EventRecordID);
 	}
 	else
-  {
+	{
 		PrintUsage();
 		return 0;
 	}
