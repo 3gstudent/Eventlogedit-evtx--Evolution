@@ -9,11 +9,6 @@ The data structure and some code details are inspired by https://bbs.pediy.com/t
 
 Later I'll write some posts to introduce the details.
 
-
-**Update:**
-
-1. Change the code of DeleteRecordbyGetHandle.cpp
-
 Note:
 
 - WinXP and Win7,ObjectTypeNumber = 0x1c
