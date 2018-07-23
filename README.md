@@ -7,7 +7,7 @@ Need more test and suggestions.
 
 **Update:**
 
-1. Change the code of DeleteRecordbyGetHandle.cpp.
+1. Change the code of DeleteRecordbyGetHandle.cpp
 
 Note:
 
