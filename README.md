@@ -18,9 +18,9 @@ Note:
 
 ### DeleteRecordofFile.cpp
 
-Read an evtx file(c:\\test\\System.evtx),then delete an event log(EventRecordID=1914).
+Read an evtx file(c:\\test\\Setup.evtx),then delete an event log(EventRecordID=14).
 
-The new evtx file is saved as `c:\\test\\System2.evtx`.
+The new evtx file is saved as `c:\\test\\SetupNew.evtx`.
 
 ### DeleteRecordbyTerminateProcess.cpp
 
@@ -30,12 +30,12 @@ Kill the eventlog service's process and delete one eventlog record,then restart 
 
 Get specified .evtx file's handle and delete one eventlog record.
 
-### System.evtx
+### Setup.evtx
 
-Number of events:4
+Number of events:15
 
-### System2.evtx
+### SetupNew.evtx
 
-Delete the last one eventlog record
+Delete the second eventlog record(EventRecordID=14)
 
-Number of events:3
+Number of events:14
