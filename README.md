@@ -20,7 +20,7 @@ Note:
 
 Read an evtx file(c:\\test\\Setup.evtx),then delete an event log(EventRecordID=14).
 
-The new evtx file is saved as `c:\\test\\SetupNew.evtx`.
+The new evtx file is saved as `c:\test\SetupNew.evtx`.
 
 ### DeleteRecordbyTerminateProcess.cpp
 
