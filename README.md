@@ -36,6 +36,6 @@ Number of events:15
 
 ### SetupNew.evtx
 
-Delete the second eventlog record(EventRecordID=14)
-
 Number of events:14
+
+You can use DeleteRecordofFile.cpp to delete the second eventlog record(EventRecordID=14) of Setup.evtx.
