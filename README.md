@@ -3,6 +3,8 @@ Remove individual lines from Windows XML Event Log (EVTX) files
 
 Support: Win7 and later
 
+Compare with DanderSpritz,my way don't need dll injection and support more version(Server2012 and Win10).
+
 Need more test and suggestions.
 
 The data structure and some code details are inspired by https://bbs.pediy.com/thread-219313.htm
