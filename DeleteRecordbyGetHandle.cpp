@@ -583,19 +583,19 @@ BOOL DeleteRecordMain(HANDLE fileHandle, DWORD EventRecordID)
 	return result;
 }
 
-void PrintUsage()
+void PrintUsage(char *argv)
 {
 	printf("\nEnumerate all processes and get specified file's handle\n");
 	printf("\nI can remove individual lines from Windows XML Event Log (EVTX) files\n");
 	printf("Support:Win7 and later\n");
 	printf("Author:3gstudent@3gstudent\n\n");
 	printf("Usage:\n");
-	printf("     %s <absolute or relative file path> <flag> <EventRecordID>\n", argv[0]);
+	printf("     %s <absolute or relative file path> <flag> <EventRecordID>\n", argv);
 	printf("If flag=0: \n     Enumerate all processes and get specified file's handle.\n");
 	printf("If flag=1: \n     Delete specified evtx file's eventlog record.\n");
 	printf("eg:\n");
-	printf("     %s system.evtx 0      ---Get the handle of system.evtx.\n", argv[0]);
-	printf("     %s system.evtx 1 5077 ---Delete an eventlog record of system.evtx,the EventRecordID is 5077\n", argv[0]);
+	printf("     %s system.evtx 0      ---Get the handle of system.evtx.\n", argv);
+	printf("     %s system.evtx 1 5077 ---Delete an eventlog record of system.evtx,the EventRecordID is 5077\n", argv);
 }
 
 int main(int argc, char *argv[])
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		PrintUsage();
+		PrintUsage(argv[0]);
 		return 0;
 	}
 
