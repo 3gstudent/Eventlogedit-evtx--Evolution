@@ -41,3 +41,10 @@ Number of events:15
 Number of events:14
 
 You can use DeleteRecordofFile.cpp to delete the second eventlog record(EventRecordID=14) of Setup.evtx.
+
+### SuspendorResumeTid.cpp
+
+Suspend or resume the Eventlog Service's thread.
+
+Use to stop or resume the system to collect logs.
+
