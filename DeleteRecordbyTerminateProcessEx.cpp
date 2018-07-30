@@ -138,7 +138,6 @@ BOOL IsBlockingHandle(HANDLE handle)
 	return TRUE;
 }
 
-
 DWORD  getpid2()
 {
 	DWORD PID = 0;
@@ -184,8 +183,6 @@ DWORD  getpid2()
 	}
 	return PID;
 }
-
-
 
 BOOL DeleteRecord(LPWSTR ReadPath, LPWSTR lpEventRecordId)
 {
@@ -267,7 +264,6 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(dupHandle);
 			continue;
 		}
-
 
 		if (handle.ProcessId == ErrorPID)
 		{
@@ -356,7 +352,6 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 					else
 						printf("false.\n");
 
-				
 			}
 			else
 			{
@@ -411,7 +406,6 @@ int _tmain(int argc, _TCHAR *argv[])
 		printf("Done\n");
 	else
 	{
-
 		printf("[!]Maybe you should delete temp.evtx first,then run me\n");
 		return -1;
 	}
