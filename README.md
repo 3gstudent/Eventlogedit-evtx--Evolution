@@ -28,6 +28,16 @@ The new evtx file is saved as `c:\test\SetupNew.evtx`.
 
 Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
 
+### DeleteRecordbyTerminateProcessEx.cpp
+
+Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
+
+Use WinAPI EvtExportLog to delete the eventlog.
+
+Note:
+
+The EventRecordID of the events after the deleted one will not be changed.
+
 ### DeleteRecordbyGetHandle.cpp
 
 Get specified .evtx file's handle and delete one eventlog record.
