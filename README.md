@@ -3,7 +3,7 @@ Remove individual lines from Windows XML Event Log (EVTX) files
 
 Support: Win7 and later
 
-Compare with DanderSpritz,my way don't need dll injection and support more version(Server2012 and later).
+Compare with DanderSpritz,my way don't need dll injection and support more version(Server2012 and later).(It can be used to delete the setup.evtx,others need more test)
 
 Need more test and suggestions.
 
@@ -31,6 +31,8 @@ Kill the eventlog service's process and delete one eventlog record,then restart 
 ### DeleteRecordbyGetHandle.cpp
 
 Get specified .evtx file's handle and delete one eventlog record.
+
+It can be used to delete the setup.evtx,others need more test.
 
 ### Setup.evtx
 
