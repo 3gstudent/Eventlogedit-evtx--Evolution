@@ -63,6 +63,8 @@ Get specified .evtx file's handle and delete one eventlog record.
 
 It can be used to delete the setup.evtx,others need more test.
 
+Delete the eventlog by rewriting the evtx file.
+
 ### Setup.evtx
 
 Number of events:15
