@@ -9,6 +9,8 @@ Need more test and suggestions.
 
 The data structure and some code details are inspired by https://bbs.pediy.com/thread-219313.htm
 
+My posts about the details:
+
 - 
  [Windows XML Event Log (EVTX)单条日志清除（一）——删除思路与实例](https://3gstudent.github.io/3gstudent.github.io/Windows-XML-Event-Log-(EVTX)%E5%8D%95%E6%9D%A1%E6%97%A5%E5%BF%97%E6%B8%85%E9%99%A4-%E4%B8%80-%E5%88%A0%E9%99%A4%E6%80%9D%E8%B7%AF%E4%B8%8E%E5%AE%9E%E4%BE%8B/)
 
