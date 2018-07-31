@@ -874,7 +874,7 @@ int main(int argc, char* argv[])
 	bResult = CloseFileHandle(Buf1, pid);
 	if (bResult == NULL)
 	{
-		printf("error\n");
+		printf("Error\n");
 		return -1;
 	}
 	printf("Done\n");
