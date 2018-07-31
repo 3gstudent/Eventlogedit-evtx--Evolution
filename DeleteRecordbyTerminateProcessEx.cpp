@@ -138,7 +138,6 @@ BOOL IsBlockingHandle(HANDLE handle)
 	return TRUE;
 }
 
-
 DWORD  getpid2()
 {
 	DWORD PID = 0;
