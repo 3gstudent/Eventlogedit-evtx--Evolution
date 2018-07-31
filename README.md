@@ -16,7 +16,7 @@ My posts about the details:
 3. Windows XML Event Log (EVTX)单条日志清除（三）——通过解除文件占用删除当前系统单条日志记录
 4. ...
 
-Later I'll write translate them into English.
+Later I'll translate them into English.
 
 Note:
 
