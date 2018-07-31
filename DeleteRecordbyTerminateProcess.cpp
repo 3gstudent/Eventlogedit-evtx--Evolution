@@ -183,7 +183,6 @@ BOOL IsBlockingHandle(HANDLE handle)
 	return TRUE;
 }
 
-
 static void init_table()
 {
 	int i, j;
@@ -805,7 +804,6 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 
 	return TRUE;
 }
-
 
 int main(int argc, char* argv[])
 {
