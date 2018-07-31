@@ -391,7 +391,7 @@ int _tmain(int argc, _TCHAR *argv[])
 	bResult = CloseFileHandle(argv[1], pid);
 	if (bResult == NULL)
 	{
-		printf("error\n");
+		printf("Error\n");
 		return -1;
 	}
 	printf("Done\n");
