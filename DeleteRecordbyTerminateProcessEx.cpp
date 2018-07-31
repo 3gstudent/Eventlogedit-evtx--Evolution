@@ -329,9 +329,9 @@ int _tmain(int argc, _TCHAR *argv[])
 		printf("Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.\n");
 		printf("Delete the eventlog by using WinAPI EvtExportLog.\n\n");
 		printf("Usage:\n");
-		printf("%s <Eventlog file name> <EventRecordID>\n", argv[0]);
+		printf("%ws <Eventlog file name> <EventRecordID>\n", argv[0]);
 		printf("eg:\n");
-		printf("     %s system.evtx 126\n", argv[0]);
+		printf("     %ws system.evtx 126\n", argv[0]);
 		return 0;
 	}
 
