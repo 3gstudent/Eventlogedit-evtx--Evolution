@@ -31,15 +31,27 @@ Read an evtx file(c:\\test\\Setup.evtx),then delete an event log(EventRecordID=1
 
 The new evtx file is saved as `c:\test\SetupNew.evtx`.
 
+Delete the eventlog by rewriting the evtx file.
+
+### DeleteRecordofFileEx.cpp
+
+Read an evtx file,then delete an event log.
+
+The new file(temp.evtx) will be saved at the same path.
+
+Delete the eventlog by using WinAPI EvtExportLog.
+
 ### DeleteRecordbyTerminateProcess.cpp
 
 Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
+
+Delete the eventlog by rewriting the evtx file.
 
 ### DeleteRecordbyTerminateProcessEx.cpp
 
 Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
 
-Use WinAPI EvtExportLog to delete the eventlog.
+Delete the eventlog by using WinAPI EvtExportLog.
 
 Note:
 
