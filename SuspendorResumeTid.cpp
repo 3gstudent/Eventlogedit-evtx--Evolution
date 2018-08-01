@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
 	{
 		printf("Suspend or resume the Eventlog Service's thread.Use to stop or resume the system to collect logs.\n");
 		printf("Usage:\n");
-		printf("%s <flag>>\n", argv[0]);
+		printf("%s <flag>\n", argv[0]);
 		printf("eg:\n");
 		printf("     %s suspend\n", argv[0]);
 		printf("     %s resume\n", argv[0]);
