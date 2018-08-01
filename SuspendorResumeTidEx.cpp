@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
     		printf("Ex:\n");
     		printf("When the Eventlog Service is stopped,I'll wait for it until it starts.Use to stop the system to collect the logs when the Eventlog Service starts.\n");
 		printf("Usage:\n");
-		printf("%s <flag>>\n", argv[0]);
+		printf("%s <flag>\n", argv[0]);
 		printf("eg:\n");
 		printf("     %s suspend\n", argv[0]);
 		printf("     %s resume\n", argv[0]);
