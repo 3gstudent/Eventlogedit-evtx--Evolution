@@ -81,3 +81,8 @@ Suspend or resume the Eventlog Service's thread.
 
 Use to stop or resume the system to collect logs.
 
+### SuspendorResumeTidEx.cpp
+
+When the Eventlog Service is stopped(killed by me),I'll wait for it until it starts.
+
+Use to stop the system to collect the logs when the Eventlog Service starts.
