@@ -587,6 +587,7 @@ void PrintUsage(char *argv)
 {
 	printf("\nEnumerate all processes and get specified file's handle\n");
 	printf("\nI can remove individual lines from Windows XML Event Log (EVTX) files\n");
+	printf("Delete the eventlog by rewriting the evtx file.\n");
 	printf("Support:Win7 and later\n");
 	printf("Author:3gstudent@3gstudent\n\n");
 	printf("Usage:\n");
