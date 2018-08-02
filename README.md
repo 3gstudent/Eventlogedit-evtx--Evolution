@@ -61,9 +61,19 @@ The EventRecordID of the events after the deleted one will not be changed.
 
 Get specified .evtx file's handle and delete one eventlog record.
 
-It can be used to delete the setup.evtx,others need more test.
+It can be used to delete the setup.evtx,others may be affected by competitive conditions.
 
 Delete the eventlog by rewriting the evtx file.
+
+### DeleteRecordbyGetHandleEx.cpp
+
+Get specified .evtx file's handle and delete one eventlog record.
+
+Read a .evtx file and replace the specified .evtx file with the data.
+
+It can be used to delete the setup.evtx,others may be affected by competitive conditions.
+
+Delete the eventlog by using WinAPI EvtExportLog.
 
 ### Setup.evtx
 
