@@ -89,12 +89,25 @@ Use to stop the system to collect the logs when the Eventlog Service starts.
 
 ### Loader-rewriting.cpp
 
+Get specified .evtx file's handle and inject a dll(Dll-rewriting.dll),use the dll to delete one eventlog record.
 
+Delete the eventlog by rewriting the evtx file.
+    
 ### Dll-rewriting.cpp
+
+
 
 ### DeleteRecord-EvtExportLog.cpp
 
+Use API EvtExportLog to delete Eventlog Record.
+
+The new file will be saved as temp.evtx.
+
 ### Loader-EvtExportLog.cpp
+
+Get specified .evtx file's handle and inject a dll(Dll-EvtExportLog.dll).
+
+Read a .evtx file and send the data to the dll,the dll will replace the specified .evtx file with the data.
 
 ### Dll-EvtExportLog.cpp
 
