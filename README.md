@@ -111,7 +111,7 @@ The new file will be saved as temp.evtx.
 
 Get specified .evtx file's handle and inject a dll(Dll-EvtExportLog.dll).
 
-Read a .evtx file and send the data to the dll,the dll will replace the specified .evtx file with the data.
+Read a .evtx file(from DeleteRecord-EvtExportLog.exe) and send the data to the dll,the dll will replace the specified .evtx file with the data.
 
 ### Dll-EvtExportLog.cpp
 
