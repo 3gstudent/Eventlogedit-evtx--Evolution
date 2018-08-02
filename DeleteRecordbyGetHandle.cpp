@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
 
 		if (!(processHandle = OpenProcess(PROCESS_DUP_HANDLE, FALSE, handle.ProcessId)))
 		{
-			printf("[!]Could not open PID %d!\n", handle.ProcessId);
+			//printf("[!]Could not open PID %d!\n", handle.ProcessId);
 			ErrorPID = handle.ProcessId;
 			free(objectTypeInfo);
 			free(objectNameInfo);
