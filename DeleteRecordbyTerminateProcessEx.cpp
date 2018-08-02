@@ -94,11 +94,6 @@ typedef struct _OBJECT_TYPE_INFORMATION
 	ULONG NonPagedPoolUsage;
 } OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
 
-PVOID GetLibraryProcAddress(PSTR LibraryName, PSTR ProcName)
-{
-	return GetProcAddress(GetModuleHandleA(LibraryName), ProcName);
-}
-
 BOOL EnableDebugPrivilege(BOOL fEnable)
 {
 	BOOL fOk = FALSE;
