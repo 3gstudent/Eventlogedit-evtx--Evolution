@@ -86,3 +86,16 @@ Use to stop or resume the system to collect logs.
 When the Eventlog Service is stopped(killed by me),I'll wait for it until it starts.
 
 Use to stop the system to collect the logs when the Eventlog Service starts.
+
+### Loader-rewriting.cpp
+
+
+### Dll-rewriting.cpp
+
+### DeleteRecord-EvtExportLog.cpp
+
+### Loader-EvtExportLog.cpp
+
+### Dll-EvtExportLog.cpp
+
+
