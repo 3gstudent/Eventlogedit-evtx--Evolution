@@ -41,6 +41,32 @@ The new file(temp.evtx) will be saved at the same path.
 
 Delete the eventlog by using WinAPI EvtExportLog.
 
+### Setup.evtx
+
+Number of events:15
+
+### SetupNew.evtx
+
+Number of events:14
+
+You can use DeleteRecordofFile.cpp to delete the second eventlog record(EventRecordID=14) of Setup.evtx.
+
+---
+
+### SuspendorResumeTid.cpp
+
+Suspend or resume the Eventlog Service's thread.
+
+Use to stop or resume the system to collect logs.
+
+### SuspendorResumeTidEx.cpp
+
+When the Eventlog Service is stopped(killed by me),I'll wait for it until it starts.
+
+Use to stop the system to collect the logs when the Eventlog Service starts.
+
+---
+
 ### DeleteRecordbyTerminateProcess.cpp
 
 Kill the eventlog service's process and delete one eventlog record,then restart the Eventlog Service.
@@ -56,6 +82,8 @@ Delete the eventlog by using WinAPI EvtExportLog.
 Note:
 
 The EventRecordID of the events after the deleted one will not be changed.
+
+---
 
 ### DeleteRecordbyGetHandle.cpp
 
@@ -75,27 +103,7 @@ It can be used to delete the setup.evtx,others may be affected by competitive co
 
 Delete the eventlog by using WinAPI EvtExportLog.
 
-### Setup.evtx
-
-Number of events:15
-
-### SetupNew.evtx
-
-Number of events:14
-
-You can use DeleteRecordofFile.cpp to delete the second eventlog record(EventRecordID=14) of Setup.evtx.
-
-### SuspendorResumeTid.cpp
-
-Suspend or resume the Eventlog Service's thread.
-
-Use to stop or resume the system to collect logs.
-
-### SuspendorResumeTidEx.cpp
-
-When the Eventlog Service is stopped(killed by me),I'll wait for it until it starts.
-
-Use to stop the system to collect the logs when the Eventlog Service starts.
+---
 
 ### Loader-rewriting.cpp
 
@@ -110,6 +118,8 @@ Compile it into DLL.
 Use the dll to delete one eventlog record.
 
 Delete the eventlog by rewriting the evtx file.
+
+---
 
 ### DeleteRecord-EvtExportLog.cpp
 
@@ -131,3 +141,4 @@ Use the dll to delete one eventlog record.
 
 Get data from Loader-EvtExportLog.exe,then replace the specified .evtx file with the data.
 
+---
