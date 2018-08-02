@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 		printf("[*]Try to enumerate all processes and get <%s>'s handle.\n", argv[1]);
 	else if ((argc == 4) && (memcmp(argv[2], "1", 1) == 0))
 	{
-		printf("[*]Try to delete <%s>'s record.\n", argv[1]);
+		printf("[*]Try to delete %s's record.\n", argv[1]);
 		printf("[*]EventRecordID is %s\n", argv[3]);	
 		sscanf_s(argv[3], "%d", &EventRecordID);
 	}
