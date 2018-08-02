@@ -95,7 +95,11 @@ Delete the eventlog by rewriting the evtx file.
     
 ### Dll-rewriting.cpp
 
+Compile it into DLL.
 
+Use the dll to delete one eventlog record.
+
+Delete the eventlog by rewriting the evtx file.
 
 ### DeleteRecord-EvtExportLog.cpp
 
@@ -111,4 +115,9 @@ Read a .evtx file and send the data to the dll,the dll will replace the specifie
 
 ### Dll-EvtExportLog.cpp
 
+Compile it into DLL.
+
+Use the dll to delete one eventlog record.
+
+Get data from Loader-EvtExportLog.exe,then replace the specified .evtx file with the data.
 
