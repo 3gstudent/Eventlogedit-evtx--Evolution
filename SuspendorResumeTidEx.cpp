@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include <windows.h>  
 #include <Strsafe.h>
 #include <tlhelp32.h>  
