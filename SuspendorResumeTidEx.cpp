@@ -104,7 +104,7 @@ BOOL GetServiceTag(DWORD processId, DWORD threadId, PULONG pServiceTag)
 		if (bIsWoW64)
 			dwOffset = 0x1720;
 		else
-			dwOffset = 0x60;
+			dwOffset = 0xf60;
 
 		if (!ReadProcessMemory(process, ((PBYTE)threadBasicInfo.pTebBaseAddress + dwOffset), &subProcessTag, sizeof(subProcessTag), NULL))
 			break;
