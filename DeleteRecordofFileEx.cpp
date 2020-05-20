@@ -32,7 +32,7 @@ BOOL DeleteRecord(LPWSTR ReadPath, LPWSTR lpEventRecordId)
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
 		printf("Use EvtExportLog to delete Eventlog Record.The new file will be saved at the same path.\n\n");
 		printf("Usage:\n");
